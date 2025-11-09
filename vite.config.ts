@@ -4,9 +4,6 @@ import path from 'path';
 export default defineConfig({
   server: {
     port: 3000,
-    headers: {
-      'Content-Type': 'application/javascript'
-    }
   },
   resolve: {
     alias: {
@@ -28,4 +25,17 @@ export default defineConfig({
       },
     }
   },
+  plugins: [
+    {
+      name: 'configure-response-headers',
+      configureServer: (server) => {
+        server.middlewares.use((req, res, next) => {
+          if (req.url?.endsWith('.ts')) {
+            res.setHeader('Content-Type', 'application/javascript');
+          }
+          next();
+        });
+      }
+    }
+  ]
 });
