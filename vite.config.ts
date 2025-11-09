@@ -41,7 +41,7 @@ export default defineConfig(({ command, mode }) => {
     config.base = '';
     // @ts-ignore
     config.build = {
-      minify: false,
+      minify: 'terser',
       target: 'es2020',
       modulePreload: { polyfill: false },
       assetsInlineLimit: 800,
@@ -55,7 +55,7 @@ export default defineConfig(({ command, mode }) => {
       }
     };
     // @ts-ignore
-    config.plugins.push(typescriptPlugin(), closurePlugin(), roadrollerPlugin(), ectPlugin());
+    config.plugins.push(typescriptPlugin(), roadrollerPlugin(), ectPlugin());
   }
 
   return config;
@@ -127,7 +127,7 @@ function roadrollerPlugin(): Plugin {
           minifyCSS: true,
         };
 
-        const bundleOutputs = Object.values<(OutputAsset | OutputChunk)>(ctx.bundle);
+        const bundleOutputs = Object.values(ctx.bundle as { [key: string]: OutputAsset | OutputChunk });
         const javascript = bundleOutputs.find((output) => output.fileName.endsWith('.js')) as OutputChunk;
         const css = bundleOutputs.find((output) => output.fileName.endsWith('.css')) as OutputAsset;
         const otherBundleOutputs = bundleOutputs.filter((output) => output !== javascript);
@@ -243,7 +243,7 @@ function minifyShaders(config: { shouldMinify: boolean, shaderDirectory: string,
   };
 }
 
-let debounceTimeout: ReturnType<typeof setTimeout>;
+let debounceTimeout: NodeJS.Timeout;
 
 export function debounce(callback: (...args: any[]) => any, wait: number) {
   clearTimeout(debounceTimeout);
